@@ -1,76 +1,63 @@
+let fs = require('fs')
 
-
-class User {
-    constructor(name, lastName, mail, password, age){
-        this.name = name;
-        this.lastName = lastName;
-        this.mail = mail;
-        this.password = password;
-        this.age = age;
-        this.listPet = [];
-        this.listBooks = [];
-        this.readBooks = [];
-        this.changePassword = (pass) =>{
-            if(pass != ""){
-                this.password = pass;
-                console.log("contraseña cambiada con exito");
-            }else{
-                console.log("No ingresaste ningun dato");
-            }
-        };
-        this.addAge = () => {
-            this.age += 1;
-            console.log(`La edad se a modificado ahora es: ${this.age}`);
-        };
-        this.reduceAge = () => {
-            this.age -= 1;
-            console.log(`La edad se a modificado ahora es: ${this.age}`);
-        };
-        this.read = (books) => {
-            let aux = this.listBooks.find(book => book.title === books);
-
-            if(aux != undefined){
-
-                this.readBooks.push(aux);
-                console.log(`El libro ${books} se guardo con exito en los libros leidos`);
-                console.log(this.readBooks);
-            }else{
-
-                console.log(`El libro ${books} no esta en tu libreria`);
-            }
-        };
-        this.addBooks = (name, pag) => {
-            this.listBooks.push({title: name, pages: pag});
-            console.log(this.listBooks);
-        };
-        this.addPet = (name, agePet) => {
-            this.listPet.push({name: name, age: agePet});
-            console.log(this.listPet);
-        };
-        this.countPet = () => console.log(`${this.name} ${this.lastName} tiene ${this.listPet.length} mascota`)
+class Product {
+    constructor(id,title, price, img){
+        this.id = id
+        this.title = title
+        this.pice = price
+        this.img = img
     }
 }
-// {title: "", pages: 0}
 
-const userOne = new User("Juan", "Filadelfia", "example@example.com", "1234asd", 10)
+class Contenedor {
+    constructor(ruta){
 
-console.log(userOne)
+        this.ruta = ruta
+        this.list = []
 
-userOne.changePassword("elPepe")
-userOne.changePassword("")
-userOne.addAge()
-userOne.reduceAge()
-userOne.addBooks("El pepe", 100)
-userOne.read("El pepe")
-userOne.read("El FEFEFE")
+        this.save = (props) => {
+            
+            fs.appendFile(ruta,JSON.stringify(props), status => {
+                if(status){
+                    console.log(`No se pudo agregar el producto ${props.title}`)
+                }else{
+                    console.log('Guardado con exito :)')
+                }
+            })
+            
+        }
+        
+        this.getAll = () => {
 
-userOne.addPet("juan", 20)
-userOne.countPet()
-userOne.addPet("pedro", 2)
-userOne.addPet("Polaco", 4)
-userOne.countPet()
+            fs.readFile(this.ruta, 'utf-8', (status, response) => {
+                if(status){
+                    console.log(`Hubo un error con el archivo ${this.ruta}`)
+                }else{
+                    console.log(response)
+                    this.list.push(response)
+                    console.log(this.list)
+                }
+            })
+
+        }
+        this.deleteAll = () => {
+            fs.unlink(ruta, status => {
+                if(status){
+                    console.log('error')
+                }else{
+                    console.log('eliminado')
+                }
+            })
+        }
+    }
+}
+
+let productos = new Contenedor("./productos.txt")
 
 
-
-
-
+productos.save(new Product(1,"Camara", 6000, "futura url"))
+productos.save(new Product(2,"Cuaderno fachero", 4000, "futura url"))
+productos.save(new Product(3,"Lapiz fachero", 4000, "futura url"))
+productos.getAll()
+productos.deleteAll()
+// productos.getById()
